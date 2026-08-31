@@ -212,15 +212,17 @@ func _open_settings():
 	for item in _items:
 		item.visible = false
 
-	# Full-screen dim overlay (blocks clicks behind)
+	# Full-screen dim overlay (blocks clicks behind) — fade in
 	_settings_dim = ColorRect.new()
-	_settings_dim.color = Color(0.0, 0.0, 0.02, 0.85)
+	_settings_dim.color = Color(0.0, 0.0, 0.02, 0.0)
 	_settings_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_settings_dim.z_index = 19
 	_settings_dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_settings_dim)
+	var dim_tw := create_tween()
+	dim_tw.tween_property(_settings_dim, "color:a", 0.85, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
-	# Settings panel — larger, centered
+	# Settings panel — larger, centered, fade in
 	_settings_panel = PanelContainer.new()
 	_settings_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_settings_panel.custom_minimum_size = Vector2(560, 500)
@@ -228,6 +230,7 @@ func _open_settings():
 	_settings_panel.z_index = 20
 	_settings_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_settings_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_settings_panel.modulate.a = 0.0
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.06, 0.04, 0.09, 0.97)
@@ -246,6 +249,8 @@ func _open_settings():
 	style.content_margin_bottom = 20
 	_settings_panel.add_theme_stylebox_override("panel", style)
 	add_child(_settings_panel)
+	var panel_tw := create_tween()
+	panel_tw.tween_property(_settings_panel, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -482,24 +487,34 @@ func _open_settings():
 
 
 func _close_settings():
+	if not _settings_open:
+		return
 	_settings_open = false
 	_play_menu("menu_back")
-	if _settings_panel:
-		_settings_panel.queue_free()
-		_settings_panel = null
-	if _settings_dim:
-		_settings_dim.queue_free()
-		_settings_dim = null
 
-	# Show all main menu elements
-	_menu_title.visible = true
-	_menu_subtitle.visible = true
-	_menu_glow.visible = true
-	_menu_hint.visible = true
-	_menu_version.visible = true
-	for item in _items:
-		item.visible = true
-	_refresh()
+	# Fade out dim + panel, then free
+	var tw := create_tween().set_parallel(true)
+	if _settings_dim:
+		tw.tween_property(_settings_dim, "color:a", 0.0, 0.2).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	if _settings_panel:
+		tw.tween_property(_settings_panel, "modulate:a", 0.0, 0.2).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	tw.chain().tween_callback(func():
+		if _settings_panel:
+			_settings_panel.queue_free()
+			_settings_panel = null
+		if _settings_dim:
+			_settings_dim.queue_free()
+			_settings_dim = null
+		# Show all main menu elements
+		_menu_title.visible = true
+		_menu_subtitle.visible = true
+		_menu_glow.visible = true
+		_menu_hint.visible = true
+		_menu_version.visible = true
+		for item in _items:
+			item.visible = true
+		_refresh()
+	)
 
 
 func _apply_and_save():
