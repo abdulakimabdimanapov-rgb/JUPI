@@ -5,8 +5,16 @@ var _items: Array[Label] = []
 var _transitioning := false
 var _settings_open := false
 var _settings_panel: PanelContainer
+var _settings_dim: ColorRect
 var _cursor: Label
 var _start_time := 0.0
+
+# Menu elements (hidden when settings open)
+var _menu_title: Label
+var _menu_subtitle: Label
+var _menu_glow: Label
+var _menu_hint: Label
+var _menu_version: Label
 
 # settings state (mirrors in-game settings_ui.gd)
 var _settings := {
@@ -77,48 +85,48 @@ func _ready():
 	fireflies.z_index = 1
 	add_child(fireflies)
 
-	var title := Label.new()
-	title.text = "JUPI"
-	title.add_theme_font_size_override("font_size", 96)
-	title.add_theme_color_override("font_color", Color(0.95, 0.80, 0.25))
-	title.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	title.anchor_top = 0.10
-	title.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	title.z_index = 2
-	add_child(title)
+	_menu_title = Label.new()
+	_menu_title.text = "JUPI"
+	_menu_title.add_theme_font_size_override("font_size", 96)
+	_menu_title.add_theme_color_override("font_color", Color(0.95, 0.80, 0.25))
+	_menu_title.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_menu_title.anchor_top = 0.10
+	_menu_title.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_menu_title.z_index = 2
+	add_child(_menu_title)
 
-	var subtitle := Label.new()
-	subtitle.text = "THE BLOOD CLOCK"
-	subtitle.add_theme_font_size_override("font_size", 22)
-	subtitle.add_theme_color_override("font_color", Color(0.65, 0.40, 0.30))
-	subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	subtitle.anchor_top = 0.24
-	subtitle.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	subtitle.z_index = 2
-	add_child(subtitle)
+	_menu_subtitle = Label.new()
+	_menu_subtitle.text = "THE BLOOD CLOCK"
+	_menu_subtitle.add_theme_font_size_override("font_size", 22)
+	_menu_subtitle.add_theme_color_override("font_color", Color(0.65, 0.40, 0.30))
+	_menu_subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_menu_subtitle.anchor_top = 0.24
+	_menu_subtitle.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_menu_subtitle.z_index = 2
+	add_child(_menu_subtitle)
 
 	# breathing glow behind title
-	var glow := Label.new()
-	glow.text = "JUPI"
-	glow.add_theme_font_size_override("font_size", 96)
-	glow.add_theme_color_override("font_color", Color(0.95, 0.75, 0.20, 0.25))
-	glow.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	glow.anchor_top = 0.10
-	glow.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	glow.z_index = 1
-	add_child(glow)
+	_menu_glow = Label.new()
+	_menu_glow.text = "JUPI"
+	_menu_glow.add_theme_font_size_override("font_size", 96)
+	_menu_glow.add_theme_color_override("font_color", Color(0.95, 0.75, 0.20, 0.25))
+	_menu_glow.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_menu_glow.anchor_top = 0.10
+	_menu_glow.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_menu_glow.z_index = 1
+	add_child(_menu_glow)
 	var glow_tw := create_tween().set_loops()
-	glow_tw.tween_property(glow, "modulate:a", 0.1, 2.5).set_trans(Tween.TRANS_SINE)
-	glow_tw.tween_property(glow, "modulate:a", 0.45, 2.5).set_trans(Tween.TRANS_SINE)
+	glow_tw.tween_property(_menu_glow, "modulate:a", 0.1, 2.5).set_trans(Tween.TRANS_SINE)
+	glow_tw.tween_property(_menu_glow, "modulate:a", 0.45, 2.5).set_trans(Tween.TRANS_SINE)
 
 	# Title entrance animation
-	title.modulate.a = 0.0
-	title.position.y -= 20
-	subtitle.modulate.a = 0.0
+	_menu_title.modulate.a = 0.0
+	_menu_title.position.y -= 20
+	_menu_subtitle.modulate.a = 0.0
 	var entrance := create_tween()
-	entrance.tween_property(title, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
-	entrance.parallel().tween_property(title, "position:y", title.position.y + 20, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	entrance.tween_property(subtitle, "modulate:a", 1.0, 0.6).set_ease(Tween.EASE_OUT)
+	entrance.tween_property(_menu_title, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
+	entrance.parallel().tween_property(_menu_title, "position:y", _menu_title.position.y + 20, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	entrance.tween_property(_menu_subtitle, "modulate:a", 1.0, 0.6).set_ease(Tween.EASE_OUT)
 
 	# Menu items: NEW GAME, CONTINUE (locked), SETTINGS, QUIT
 	var cursor := Label.new()
@@ -161,25 +169,25 @@ func _ready():
 	_cursor = cursor
 	_refresh()
 
-	var hint := Label.new()
-	hint.text = "W/S — select    ENTER — confirm    Mouse — click"
-	hint.add_theme_font_size_override("font_size", 14)
-	hint.modulate = Color(1, 1, 1, 0.35)
-	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	hint.anchor_top = 0.92
-	hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	hint.z_index = 2
-	add_child(hint)
+	_menu_hint = Label.new()
+	_menu_hint.text = "W/S — select    ENTER — confirm    Mouse — click"
+	_menu_hint.add_theme_font_size_override("font_size", 14)
+	_menu_hint.modulate = Color(1, 1, 1, 0.35)
+	_menu_hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_menu_hint.anchor_top = 0.92
+	_menu_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_menu_hint.z_index = 2
+	add_child(_menu_hint)
 
-	var version := Label.new()
-	version.text = "v1.0"
-	version.add_theme_font_size_override("font_size", 10)
-	version.modulate = Color(1, 1, 1, 0.20)
-	version.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	version.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	version.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	version.z_index = 2
-	add_child(version)
+	_menu_version = Label.new()
+	_menu_version.text = "v1.0"
+	_menu_version.add_theme_font_size_override("font_size", 10)
+	_menu_version.modulate = Color(1, 1, 1, 0.20)
+	_menu_version.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_menu_version.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_menu_version.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_menu_version.z_index = 2
+	add_child(_menu_version)
 
 # ─── SOUND HELPERS ─────────────────────────────────────────────────────────────
 
@@ -193,29 +201,49 @@ func _play_menu(cue: String) -> void:
 func _open_settings():
 	_settings_open = true
 	_play_menu("menu_open")
+
+	# Hide all main menu elements
+	_menu_title.visible = false
+	_menu_subtitle.visible = false
+	_menu_glow.visible = false
+	_menu_hint.visible = false
+	_menu_version.visible = false
+	_cursor.visible = false
+	for item in _items:
+		item.visible = false
+
+	# Full-screen dim overlay (blocks clicks behind)
+	_settings_dim = ColorRect.new()
+	_settings_dim.color = Color(0.0, 0.0, 0.02, 0.85)
+	_settings_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_settings_dim.z_index = 19
+	_settings_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_settings_dim)
+
+	# Settings panel — larger, centered
 	_settings_panel = PanelContainer.new()
-	_settings_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_settings_panel.custom_minimum_size = Vector2(480, 420)
-	_settings_panel.size = Vector2(480, 420)
+	_settings_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_settings_panel.custom_minimum_size = Vector2(560, 500)
+	_settings_panel.size = Vector2(560, 500)
 	_settings_panel.z_index = 20
 	_settings_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_settings_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.04, 0.09, 0.95)
+	style.bg_color = Color(0.06, 0.04, 0.09, 0.97)
 	style.border_color = Color(0.6, 0.5, 0.2)
 	style.border_width_left = 2
 	style.border_width_right = 2
 	style.border_width_top = 2
 	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
-	style.content_margin_left = 24
-	style.content_margin_right = 24
-	style.content_margin_top = 18
-	style.content_margin_bottom = 18
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	style.content_margin_left = 28
+	style.content_margin_right = 28
+	style.content_margin_top = 20
+	style.content_margin_bottom = 20
 	_settings_panel.add_theme_stylebox_override("panel", style)
 	add_child(_settings_panel)
 
@@ -459,6 +487,18 @@ func _close_settings():
 	if _settings_panel:
 		_settings_panel.queue_free()
 		_settings_panel = null
+	if _settings_dim:
+		_settings_dim.queue_free()
+		_settings_dim = null
+
+	# Show all main menu elements
+	_menu_title.visible = true
+	_menu_subtitle.visible = true
+	_menu_glow.visible = true
+	_menu_hint.visible = true
+	_menu_version.visible = true
+	for item in _items:
+		item.visible = true
 	_refresh()
 
 
