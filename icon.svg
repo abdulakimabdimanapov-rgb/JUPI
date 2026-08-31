@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="blobGrad" cx="40%" cy="40%">
+      <stop offset="0%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#1B5E20"/>
+    </radialGradient>
+    <radialGradient id="glowGrad" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#81C784" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1B5E20" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="16" fill="#0D1117"/>
+  <!-- Glow -->
+  <circle cx="64" cy="70" r="45" fill="url(#glowGrad)"/>
+  <!-- Blob body -->
+  <ellipse cx="64" cy="68" rx="30" ry="25" fill="url(#blobGrad)"/>
+  <!-- Blob tentacle -->
+  <ellipse cx="50" cy="85" rx="12" ry="6" fill="#2E7D32" opacity="0.8"/>
+  <ellipse cx="78" cy="82" rx="10" ry="5" fill="#2E7D32" opacity="0.7"/>
+  <!-- Eyes -->
+  <circle cx="55" cy="60" r="5" fill="#E8F5E9"/>
+  <circle cx="73" cy="60" r="5" fill="#E8F5E9"/>
+  <circle cx="55" cy="60" r="2.5" fill="#0D1117"/>
+  <circle cx="73" cy="60" r="2.5" fill="#0D1117"/>
+  <!-- Eye glow -->
+  <circle cx="54" cy="59" r="1" fill="#A5D6A7"/>
+  <circle cx="72" cy="59" r="1" fill="#A5D6A7"/>
+  <!-- Title -->
+  <text x="64" y="118" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#81C784">JUPI</text>
+</svg>

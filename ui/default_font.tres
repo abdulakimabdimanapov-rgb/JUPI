@@ -1,0 +1,12 @@
+[gd_resource type="SystemFont"]
+
+resource_name = "DefaultSystemFont"
+font_names = PackedStringArray("Arial", "Helvetica", "DejaVu Sans")
+font_weight = 400
+font_italics = false
+font_stretch = 0
+opentype_features = {}
+ locale = ""
+subpixel_positioning = 0
+hinting = 1
+antialiased = true

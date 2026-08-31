@@ -1,0 +1,8 @@
+Pixel art 16x16 sprite of The Warlord boss.
+Ancient warlord with heavy armor and crown.
+Brown and gold armor with fur cape.
+Muscular frame, dual-wielding a massive axe.
+Glowing red eyes, intimidating war paint.
+Translucent background, nearest filtering.
+Style: dark medieval pixel art, consistent with TIME HUNTER visual style.
+Grid: 16x16 pixels, single sprite.

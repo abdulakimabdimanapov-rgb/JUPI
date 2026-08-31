@@ -1,0 +1,9 @@
+pixel art background, {resolution}, {scene_description},
+dark cyberpunk noir cityscape at night,
+atmospheric perspective, layered depth,
+rain, neon reflections, wet surfaces,
+muted dark palette with selective neon accents,
+no characters, environmental storytelling,
+game background asset, parallax-ready layers,
+consistent with dark atmospheric action game
+Negative: photorealistic, 3d render, gradient, blur, bright, cheerful, characters, text

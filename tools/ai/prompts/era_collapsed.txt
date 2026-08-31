@@ -1,0 +1,10 @@
+pixel art, 16x16, top-down perspective, post-apocalyptic {subject},
+{description},
+destroyed buildings, rubble, cracked streets, abandoned vehicles,
+mutated creatures, rogue machines, rare salvaged technology,
+flat colors, 1px dark outline #1a1420, no gradients, no anti-aliasing,
+top-left lighting, desaturated reds, rust oranges, ash greys,
+transparent background, centered composition,
+game asset, consistent with post-apocalyptic wasteland style,
+dangerous zones, toxic glow, ruined infrastructure, decay
+Negative: photorealistic, 3d render, gradient, blur, clean, pristine, modern

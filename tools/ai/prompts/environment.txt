@@ -1,0 +1,9 @@
+pixel art, 16x16, top-down perspective, {tile_type} environment tile,
+{description},
+seamless tiling pattern, dark cyberpunk noir city,
+flat colors, 1px dark outline where appropriate, no gradients, no anti-aliasing,
+top-left lighting, muted dark palette with selective color accents,
+transparent background where applicable,
+game tile asset, tileable, consistent with city environment,
+grid-aligned, pixel-perfect edges
+Negative: photorealistic, 3d render, gradient, blur, perspective distortion, text, complex composition

@@ -1,0 +1,10 @@
+pixel art, 16x16, top-down perspective, {npc_type} NPC character,
+{description},
+{state} animation frame,
+dark cyberpunk city background implied,
+flat colors, 1px dark outline #1a1420, no gradients, no anti-aliasing,
+top-left lighting, muted blue-grey palette,
+transparent background, centered composition,
+game asset, spritesheet frame {frame_index} of {total_frames},
+consistent with dark noir game style
+Negative: photorealistic, 3d render, gradient, blur, anime, multiple characters

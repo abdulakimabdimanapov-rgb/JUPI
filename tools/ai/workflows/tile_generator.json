@@ -1,0 +1,65 @@
+{
+  "name": "Tile Atlas Generator",
+  "description": "Generates 16x16 tile atlas for environment building",
+  "version": "1.0",
+
+  "nodes": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": { "ckpt_name": "pixel_art_v1.safetensors" },
+      "_meta": { "title": "Load Checkpoint" }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "pixel art, 16x16, top-down, {tile_set} tileset, {tile_description}, seamless, dark cyberpunk city, flat colors, 1px outline, no gradients, transparent background, tileable",
+        "clip": ["1", 1]
+      },
+      "_meta": { "title": "Positive Prompt" }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "photorealistic, 3d, gradient, blur, perspective, text, complex, smooth, anti-aliasing",
+        "clip": ["1", 1]
+      },
+      "_meta": { "title": "Negative Prompt" }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": { "width": 512, "height": 512, "batch_size": 1 },
+      "_meta": { "title": "Latent Canvas" }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0],
+        "latent_image": ["4", 0],
+        "seed": "{seed}", "steps": 25, "cfg": 7.5,
+        "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 1.0
+      },
+      "_meta": { "title": "KSampler" }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": { "samples": ["5", 0], "vae": ["1", 2] },
+      "_meta": { "title": "VAE Decode" }
+    },
+    "7": {
+      "class_type": "ImageScale",
+      "inputs": {
+        "image": ["6", 0], "upscale_method": "nearest-exact",
+        "width": 16, "height": 16, "crop": "center"
+      },
+      "_meta": { "title": "Downscale to 16x16" }
+    },
+    "8": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": ["7", 0],
+        "filename_prefix": "generated/tiles/{tile_name}"
+      },
+      "_meta": { "title": "Save Tile" }
+    }
+  }
+}

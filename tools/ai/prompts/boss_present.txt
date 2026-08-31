@@ -1,0 +1,9 @@
+Pixel art 16x16 sprite of a Corporate Enforcer boss.
+Heavy armored corporate soldier with advanced weaponry.
+Dark grey and blue armor with energy visor.
+Ominous stance, large frame, intimidating presence.
+Neon blue accents on chest piece and helmet.
+Carries a high-tech melee weapon.
+Transparent background, nearest filtering.
+Style: dark cyberpunk pixel art, consistent with TIME HUNTER visual style.
+Grid: 16x16 pixels, single sprite.
