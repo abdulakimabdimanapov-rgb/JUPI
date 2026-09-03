@@ -1,8 +1,0 @@
-Pixel art 16x16 sprite of a Cyber Guardian boss.
-Sleek android with advanced technology.
-Blue and cyan metallic body with glowing energy core.
-Holographic shield emitter, floating drone companion.
-Red laser eyes, sleek robotic frame.
-Transparent background, nearest filtering.
-Style: futuristic cyberpunk pixel art, consistent with TIME HUNTER visual style.
-Grid: 16x16 pixels, single sprite.

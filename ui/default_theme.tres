@@ -1,7 +1,1 @@
-[gd_resource type="Theme"]
-
-[resource]
-default_font = ExtResource("1")
-default_font_size = 16
-
-[ext_resource type="FontFile" path="res://ui/default_font.tres" id="1"]
+[gd_resource type="Theme" format=3]

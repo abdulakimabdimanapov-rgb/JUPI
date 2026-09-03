@@ -1,8 +1,0 @@
-Pixel art 16x16 sprite of a Time Devourer boss.
-Eldritch entity feeding on temporal energy.
-Deep purple and magenta swirling energy form.
-Multiple ghostly arms, distorted reality around it.
-Glowing white eyes, impossible geometry.
-Transparent background, nearest filtering.
-Style: eldritch horror pixel art, consistent with TIME HUNTER visual style.
-Grid: 16x16 pixels, single sprite.

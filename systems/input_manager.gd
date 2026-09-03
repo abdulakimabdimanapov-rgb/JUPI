@@ -24,6 +24,14 @@ var ACTIONS := {
 
 var _waiting_for_input: String = ""  # action currently being remapped
 
+# Arrow keys always stay available for movement on top of any user binding
+const ARROW_MOVEMENT_KEYS := {
+	"move_up": KEY_UP,
+	"move_down": KEY_DOWN,
+	"move_left": KEY_LEFT,
+	"move_right": KEY_RIGHT,
+}
+
 const SAVE_PATH := "user://keybinds.json"
 
 
@@ -58,6 +66,24 @@ func load_bindings() -> void:
 		# Clear old bindings
 		InputMap.action_erase_events(action)
 		InputMap.action_add_event(action, ev)
+	_ensure_movement_arrows()
+
+
+func _ensure_movement_arrows() -> void:
+	# Movement always supports arrows (WASD + arrows), even when keybinds file
+	# or defaults only saved the WASD binding.
+	for action in ARROW_MOVEMENT_KEYS:
+		var has_arrow := false
+		for ev in InputMap.action_get_events(action):
+			if ev is InputEventKey:
+				var ie: InputEventKey = ev
+				if ie.physical_keycode == ARROW_MOVEMENT_KEYS[action] or ie.keycode == ARROW_MOVEMENT_KEYS[action]:
+					has_arrow = true
+					break
+		if not has_arrow:
+			var arrow := InputEventKey.new()
+			arrow.physical_keycode = ARROW_MOVEMENT_KEYS[action]
+			InputMap.action_add_event(action, arrow)
 
 
 func save_bindings() -> void:
@@ -96,6 +122,7 @@ func reset_to_defaults() -> void:
 			var ev := InputEventKey.new()
 			ev.physical_keycode = defaults[action]
 			InputMap.action_add_event(action, ev)
+	_ensure_movement_arrows()
 	# Mouse buttons for attack
 	var lmb := InputEventMouseButton.new()
 	lmb.button_index = MOUSE_BUTTON_LEFT

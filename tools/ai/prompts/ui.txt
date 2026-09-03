@@ -1,9 +1,0 @@
-pixel art UI element, {ui_type},
-{description},
-dark glass/metal texture, subtle glow edges,
-flat colors, 1px border, no gradients, no anti-aliasing,
-dark background compatible (dark grey/blue tones),
-game HUD/UI asset, clean readable design,
-consistent with dark cyberpunk noir aesthetic,
-functional and atmospheric
-Negative: photorealistic, 3d render, gradient, blur, bright colors, white background

@@ -9,3 +9,4 @@ func _ready() -> void:
 	var theme := ThemeDB.fallback_font
 	ThemeDB.fallback_font = font
 	ThemeDB.fallback_font_size = 16
+  
