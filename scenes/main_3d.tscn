@@ -1,0 +1,190 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/main_3d.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/player_3d.tscn" id="2_player"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.06, 0.07, 0.1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.55, 0.6, 1)
+ambient_light_energy = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(24, 1, 24)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(24, 1, 24)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_ns"]
+size = Vector3(24, 3, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_ns"]
+size = Vector3(24, 3, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_ew"]
+size = Vector3(0.5, 3, 24)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
+size = Vector3(0.5, 3, 24)
+
+[sub_resource type="BoxMesh" id="BoxMesh_block"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_block"]
+size = Vector3(1, 1, 1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-1.0472, 0.5236, 0)
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="Collision" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="WallN" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.5, -12)
+
+[node name="Mesh" type="MeshInstance3D" parent="WallN"]
+mesh = SubResource("BoxMesh_wall_ns")
+
+[node name="Collision" type="CollisionShape3D" parent="WallN"]
+shape = SubResource("BoxShape3D_wall_ns")
+
+[node name="WallS" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.5, 12)
+
+[node name="Mesh" type="MeshInstance3D" parent="WallS"]
+mesh = SubResource("BoxMesh_wall_ns")
+
+[node name="Collision" type="CollisionShape3D" parent="WallS"]
+shape = SubResource("BoxShape3D_wall_ns")
+
+[node name="WallE" type="StaticBody3D" parent="."]
+position = Vector3(12, 1.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="WallE"]
+mesh = SubResource("BoxMesh_wall_ew")
+
+[node name="Collision" type="CollisionShape3D" parent="WallE"]
+shape = SubResource("BoxShape3D_wall_ew")
+
+[node name="WallW" type="StaticBody3D" parent="."]
+position = Vector3(-12, 1.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="WallW"]
+mesh = SubResource("BoxMesh_wall_ew")
+
+[node name="Collision" type="CollisionShape3D" parent="WallW"]
+shape = SubResource("BoxShape3D_wall_ew")
+
+[node name="Block1" type="StaticBody3D" parent="."]
+position = Vector3(-5, 0.5, -4)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block1"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block1"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block2" type="StaticBody3D" parent="."]
+position = Vector3(0, 0.5, -7)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block2"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block2"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block3" type="StaticBody3D" parent="."]
+position = Vector3(5, 0.5, -3)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block3"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block3"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block4" type="StaticBody3D" parent="."]
+position = Vector3(-3, 0.5, 4)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block4"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block4"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block5" type="StaticBody3D" parent="."]
+position = Vector3(3, 0.5, 3)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block5"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block5"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block6" type="StaticBody3D" parent="."]
+position = Vector3(7, 0.5, 1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block6"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block6"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Block7" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.5, -7)
+
+[node name="Mesh" type="MeshInstance3D" parent="Block7"]
+mesh = SubResource("BoxMesh_block")
+
+[node name="Collision" type="CollisionShape3D" parent="Block7"]
+shape = SubResource("BoxShape3D_block")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(0, 1, 8)
+
+[node name="CrosshairUI" type="CanvasLayer" parent="."]
+
+[node name="Root" type="Control" parent="CrosshairUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="H" type="ColorRect" parent="CrosshairUI/Root"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -1.0
+offset_right = 5.0
+offset_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="V" type="ColorRect" parent="CrosshairUI/Root"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_top = -5.0
+offset_right = 1.0
+offset_bottom = 5.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
