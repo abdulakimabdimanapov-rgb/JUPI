@@ -1,61 +1,55 @@
 extends CharacterBody3D
 ## Minimal first-person controller for the JUPI 3D prototype.
 ##
+## - Aim comes from an AimSource (default: mouse). The player polls
+##   aim_source.get_aim() every physics frame and applies it to the body
+##   yaw / head pitch, so a future hand-tracking source can drive the
+##   crosshair simply by being assigned to aim_source.
 ## - WASD moves the body relative to where it is facing.
-## - Mouse X rotates the body (yaw); mouse Y pitches the head camera.
-## - Escape releases the mouse; click recaptures it.
+## - LMB fires (emits aim_requested) while the aim source is active; a
+##   click while the source is inactive just activates it.
 ##
-## Deliberately tiny: no weapons, health, stamina, head bob or effects.
-## A future input source (e.g. laptop-camera hand tracking) can drive the
-## aim by controlling _head.rotation (pitch) and rotation.y (yaw) instead
-## of mouse input — the rest of the controller does not care where they
-## come from.
+## No weapons, health, stamina, head bob or effects by design.
+
+const AimSourceMouseScript := preload("res://scripts/aim_source_mouse.gd")
 
 const SPEED := 5.0
-const MOUSE_SENSITIVITY := 0.0022
-const PITCH_LIMIT_DEG := 89.0
 const GRAVITY := 9.8
 
-## Emitted when the player fires (LMB while the mouse is captured).
+## Emitted when the player fires (LMB while the aim source is active).
 ## The main scene listens and decides what the shot does.
 signal aim_requested
+
+## Swappable aim input. Anything implementing the AimSource interface
+## (get_aim / handle_input / is_active / activate) can replace the mouse.
+var aim_source = AimSourceMouseScript.new()
 
 @onready var _head: Camera3D = $Head
 
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	aim_source.activate()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			# Horizontal mouse movement turns the body (yaw).
-			rotate_y(-event.relative.x * MOUSE_SENSITIVITY)
-			# Vertical mouse movement pitches the head camera, clamped.
-			_head.rotate_x(-event.relative.y * MOUSE_SENSITIVITY)
-			_head.rotation.x = clampf(
-				_head.rotation.x,
-				deg_to_rad(-PITCH_LIMIT_DEG),
-				deg_to_rad(PITCH_LIMIT_DEG)
-			)
-	elif event.is_action_pressed("ui_cancel"):
-		# Escape toggles mouse capture.
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	elif event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-				# Playing: fire an aim request. Aim logic lives in main_3d.gd.
-				aim_requested.emit()
-			else:
-				# Mouse was released (Escape): a click recaptures it, no shot.
-				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Give the aim source first pick of every input event.
+	if aim_source.handle_input(event):
+		return
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT and aim_source.is_active():
+			# Playing: fire an aim request. Aim logic lives in main_3d.gd.
+			aim_requested.emit()
+		elif not aim_source.is_active():
+			# Mouse was released (Escape): any click recaptures it, no shot.
+			aim_source.activate()
 
 
 func _physics_process(delta: float) -> void:
+	# Apply the aim source: yaw turns the body, pitch tilts the head.
+	var aim: Vector2 = aim_source.get_aim()
+	rotation.y = aim.x
+	_head.rotation.x = aim.y
+
 	# Gravity.
 	velocity.y -= GRAVITY * delta
 
