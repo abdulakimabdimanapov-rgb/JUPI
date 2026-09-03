@@ -16,6 +16,10 @@ const MOUSE_SENSITIVITY := 0.0022
 const PITCH_LIMIT_DEG := 89.0
 const GRAVITY := 9.8
 
+## Emitted when the player fires (LMB while the mouse is captured).
+## The main scene listens and decides what the shot does.
+signal aim_requested
+
 @onready var _head: Camera3D = $Head
 
 
@@ -42,8 +46,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	elif event is InputEventMouseButton and event.pressed:
-		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+				# Playing: fire an aim request. Aim logic lives in main_3d.gd.
+				aim_requested.emit()
+			else:
+				# Mouse was released (Escape): a click recaptures it, no shot.
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _physics_process(delta: float) -> void:
