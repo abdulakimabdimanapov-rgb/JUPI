@@ -210,3 +210,12 @@ offset_bottom = 36.0
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "Hits: 0"
+
+[node name="StatsLabel" type="Label" parent="CrosshairUI"]
+offset_left = 12.0
+offset_top = 40.0
+offset_right = 320.0
+offset_bottom = 62.0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "Accuracy: 0%   Time: 0.0s"
