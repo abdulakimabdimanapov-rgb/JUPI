@@ -28,3 +28,6 @@ __pycache__/
 
 # Freebuff agent runtime metadata
 .freebuff/
+
+# Hand tracker virtualenv (recreate locally, never commit)
+hand_tracking/.venv/

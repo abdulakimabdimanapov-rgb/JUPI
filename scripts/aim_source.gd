@@ -2,9 +2,10 @@ extends RefCounted
 ## Abstract aim source for the first-person controller.
 ##
 ## The player polls get_aim() every physics frame and applies the result
-## to the body yaw / head pitch. That is why an aim source can be either
-## incremental (mouse deltas) or absolute (e.g. a future hand-tracking
-## pipeline that maps a hand position to a world aim direction).
+## to the body yaw / head pitch. The crosshair is permanently centered
+## and the aim raycast always passes through the exact center of the
+## camera, so a source only ever drives the camera orientation, never a
+## pointer.
 ##
 ## Contract for concrete sources:
 ## - get_aim()      -> (yaw, pitch) radians the camera should face.
@@ -14,8 +15,8 @@ extends RefCounted
 ##                    mouse is captured). Firing is only allowed while
 ##                    active.
 ## - activate()     -> bring the source up (e.g. capture the mouse).
-## - set_aim()      -> explicit aim override (tests, calibration, or a
-##                    future non-input source).
+## - set_aim()      -> explicit aim override (mode switches, tests,
+##                    calibration).
 
 const PITCH_LIMIT_DEG := 89.0
 

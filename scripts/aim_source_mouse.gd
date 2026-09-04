@@ -2,8 +2,11 @@ extends "res://scripts/aim_source.gd"
 ## Mouse-driven aim source.
 ##
 ## Mouse deltas accumulate into an absolute (yaw, pitch) aim that the
-## player applies every physics frame. The source owns mouse capture:
-## Escape toggles it, activate() captures.
+## player applies every physics frame. The crosshair is permanently
+## centered (the aim raycast passes through the camera center), so the
+## mouse only ever controls look.
+##
+## The source owns mouse capture: Escape toggles it, activate() captures.
 
 const MOUSE_SENSITIVITY := 0.0022
 
