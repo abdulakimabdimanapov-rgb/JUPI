@@ -10,6 +10,10 @@ extends "res://scripts/aim_source.gd"
 ##   starting a pinch never jumps the camera.
 ## - shooting: each RIGHT pinch emits pinch_shot exactly once
 ##   (edge-triggered in the tracker; one UDP message = one shot).
+## - walking: while any detected hand is OPEN (present and not
+##   pinched), is_walking() is true and the player walks forward at a
+##   constant speed. Pinching a hand takes it out of walking duty and
+##   starts its special action instead.
 ##
 ## The crosshair is permanently centered and this source does not move
 ## it: the shot ray always passes through the camera center, and this
@@ -19,15 +23,22 @@ extends "res://scripts/aim_source.gd"
 ##   host    : 127.0.0.1
 ##   port    : 37020 (see UDP_PORT)
 ##   payloads (ASCII, one per datagram):
-##     "hand,left" / "hand,right" / "hand,none"
-##         presence events, edge-triggered (used to detect the tracker
-##         is online without spamming)
+##     "hand,left" / "hand,right"
+##         hand appeared (edge-triggered; also used to detect the
+##         tracker is online without spamming). An appeared hand is
+##         OPEN until told otherwise.
+##     "left,gone" / "right,gone"
+##         that hand left the frame: it stops walking and, for the
+##         left hand, disarms camera look.
 ##     "left,pinch"       left pinch started -> arm camera look
 ##     "left,x,y"         left hand position (normalized [0, 1]) while
 ##                        the left pinch is held; Godot turns deltas
 ##                        into yaw/pitch
-##     "left,release"     left pinch ended (or the left hand vanished)
+##     "left,release"     left pinch ended -> open again (walks again)
 ##     "right,pinch"      right pinch started -> exactly one shot
+##     "right,release"    right pinch ended -> open again (walks again)
+##   Walking is derived state: any hand that is present and not pinched
+##   (is_walking()) makes the player move forward.
 ##   Malformed or unknown packets are ignored.
 
 ## Emitted once per right-hand pinch (one "right,pinch" UDP message).
@@ -65,6 +76,12 @@ var _pitch := 0.0
 var _left_aiming := false
 var _left_prev := Vector2.ZERO
 var _left_has_prev := false
+
+# Per-hand presence and pinch state, updated from the tracker's edges.
+# A hand that is present and not pinched is "open" and makes the player
+# walk forward.
+var _present := {"left": false, "right": false}
+var _pinched := {"left": false, "right": false}
 
 # Count of valid UDP packets received. The player uses it to switch to
 # hand mode automatically once real tracker data arrives.
@@ -111,26 +128,53 @@ func poll() -> void:
 
 
 func _handle_packet(text: String) -> void:
-	if text == "hand,left" or text == "hand,right" or text == "hand,none":
+	if text == "hand,left":
+		_present["left"] = true
+		_data_packets += 1
+		return
+	if text == "hand,right":
+		_present["right"] = true
+		_data_packets += 1
+		return
+	if text == "left,gone":
+		_present["left"] = false
+		_pinched["left"] = false
+		# The left hand left while maybe pinched: disarm camera look so
+		# no stale baseline is armed.
+		_left_aiming = false
+		_left_has_prev = false
+		_data_packets += 1
+		return
+	if text == "right,gone":
+		_present["right"] = false
+		_pinched["right"] = false
 		_data_packets += 1
 		return
 	if text == "left,pinch":
 		# Pinch started: arm camera control. The next position packet
 		# becomes the baseline, so the camera does not jump.
+		_pinched["left"] = true
 		_left_aiming = true
 		_left_has_prev = false
 		_data_packets += 1
 		return
 	if text == "left,release":
-		# Pinch ended (or the hand vanished): stop rotating, reset the
-		# baseline so the next pinch starts fresh.
+		# Pinch ended: back to open (walks again), stop rotating and
+		# reset the baseline so the next pinch starts fresh.
+		_pinched["left"] = false
 		_left_aiming = false
 		_left_has_prev = false
 		_data_packets += 1
 		return
 	if text == "right,pinch":
 		# One edge-triggered message from the tracker = one shot.
+		_pinched["right"] = true
 		pinch_shot.emit()
+		_data_packets += 1
+		return
+	if text == "right,release":
+		# Pinch ended: back to open, so this hand walks again.
+		_pinched["right"] = false
 		_data_packets += 1
 		return
 	if text.begins_with("left,"):
@@ -180,6 +224,14 @@ func _handle_left_position(text: String) -> void:
 ## the tracker is running and initialized and has seen a hand.
 func has_received_data() -> bool:
 	return _data_packets > 0
+
+
+## True while hand mode is live and at least one detected hand is OPEN
+## (present and not pinched). While true, the player walks forward at a
+## constant speed; pinching a hand stops it walking and starts its
+## special action (left = look, right = shoot).
+func is_walking() -> bool:
+	return (_present["left"] and not _pinched["left"]) or (_present["right"] and not _pinched["right"])
 
 
 func get_aim() -> Vector2:

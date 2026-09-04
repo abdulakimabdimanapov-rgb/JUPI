@@ -14,6 +14,11 @@ extends CharacterBody3D
 ## - LEFT hand pinch + movement rotates the camera (relative deltas,
 ##   owned by the hand aim source).
 ## - RIGHT hand pinch fires exactly one shot (pinch_shot -> aim_requested).
+## - Any hand that is OPEN walks the player forward along the view at a
+##   constant speed, so the session can be played hands-only; pinching a
+##   hand stops it walking and starts its action. Left pinch (look) + a
+##   right open hand moves AND turns at the same time.
+## - Keyboard movement is disabled in hand mode (gestures own movement).
 ## - Mouse look is disabled in hand mode (the left hand owns the camera);
 ##   Escape capture/release still works through the wrapped mouse source.
 ##
@@ -23,6 +28,9 @@ const AimSourceMouseScript := preload("res://scripts/aim_source_mouse.gd")
 const AimSourceHandScript := preload("res://scripts/aim_source_hand.gd")
 
 const SPEED := 5.0
+## Constant walk speed while a hand is open in hand mode (Step 9).
+## Slightly slower than keyboard sprint-feel so aiming stays controlled.
+const WALK_SPEED := 2.5
 const GRAVITY := 9.8
 
 ## Emitted when the player fires (LMB while the aim source is active, or
@@ -138,16 +146,29 @@ func _physics_process(delta: float) -> void:
 	# Gravity.
 	velocity.y -= GRAVITY * delta
 
-	# Horizontal movement from WASD, relative to facing.
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var wish := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y))
-	if wish.length() > 0.001:
-		wish = wish.normalized()
-		velocity.x = wish.x * SPEED
-		velocity.z = wish.z * SPEED
+	# Horizontal movement, relative to facing.
+	if _hand_mode:
+		# Hands-only: while any detected hand is open (is_walking()), walk
+		# forward along the view at a constant speed. Pinching both hands
+		# (look / shoot) or dropping them stops the player. WASD is not
+		# read in hand mode so gestures fully own movement.
+		if aim_source.is_walking():
+			var fwd := -transform.basis.z  # yaw-only basis: horizontal
+			velocity.x = fwd.x * WALK_SPEED
+			velocity.z = fwd.z * WALK_SPEED
+		else:
+			velocity.x = 0.0
+			velocity.z = 0.0
 	else:
-		velocity.x = 0.0
-		velocity.z = 0.0
+		var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+		var wish := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y))
+		if wish.length() > 0.001:
+			wish = wish.normalized()
+			velocity.x = wish.x * SPEED
+			velocity.z = wish.z * SPEED
+		else:
+			velocity.x = 0.0
+			velocity.z = 0.0
 
 	move_and_slide()
 

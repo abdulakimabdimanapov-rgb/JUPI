@@ -14,6 +14,12 @@ Control scheme:
   RIGHT hand = shoot. Each open -> pinch transition of the right hand
                sends exactly one "right,pinch" message (edge-triggered).
                Holding the pinch sends nothing more.
+  Movement   = open hands. Godot walks forward while any detected hand
+               is OPEN (not pinched). The tracker reports each hand's
+               appear/leave and pinch/open edges so Godot always knows
+               the current open/pinched state of both hands:
+               hand,<side> on appear, <side>,gone on leave,
+               <side>,pinch / <side>,release on transitions.
 
 Press Q to quit.
 """
@@ -163,18 +169,19 @@ def main() -> None:
             # --- Presence events (edge-triggered) ---------------------
             # Godot uses the first hand event to switch to hand mode, so
             # a user holding both hands up without pinching still gets
-            # hand controls enabled.
+            # hand controls enabled. Appear and leave are reported per
+            # hand so Godot always knows which hands are present (an
+            # open, present hand makes the player walk).
             for label in ("Left", "Right"):
+                side = label.lower()
                 seen = label in hands
                 if seen and not prev_seen[label]:
-                    send(f"hand,{label.lower()}")
-                    print(f"hand {label} detected")
+                    send(f"hand,{side}")
+                    print(f"hand {side} detected")
+                elif not seen and prev_seen[label]:
+                    send(f"{side},gone")
+                    print(f"hand {side} gone")
                 prev_seen[label] = seen
-            if not hands and (prev_seen["Left"] or prev_seen["Right"]):
-                send("hand,none")
-                print("no hands detected")
-                prev_seen["Left"] = False
-                prev_seen["Right"] = False
 
             # --- LEFT hand: camera look while pinched ------------------
             left = hands.get("Left")
@@ -204,11 +211,9 @@ def main() -> None:
                         )
                     send("left,%.3f,%.3f" % left_smooth)
             else:
-                if pinched["Left"]:
-                    # Left hand vanished while pinched: tell Godot to stop
-                    # rotating instead of leaving it armed.
-                    send("left,release")
-                    print("left,release (hand lost)")
+                # left,gone was already sent in the presence section, so
+                # Godot disarmed camera look there; only the local state
+                # resets here.
                 pinched["Left"] = False
                 left_smooth = None
 
@@ -223,9 +228,13 @@ def main() -> None:
                     send("right,pinch")
                     print("right,pinch -> UDP  (d=%.3f)" % dist)
                 elif not now_pinched and pinched["Right"]:
-                    print("right pinch released (d=%.3f)" % dist)
+                    # Edge: pinched -> open. Godot resumes walking (an
+                    # open hand moves the player forward).
+                    send("right,release")
+                    print("right,release (d=%.3f)" % dist)
                 pinched["Right"] = now_pinched
             else:
+                # right,gone was already sent in the presence section.
                 pinched["Right"] = False
 
             # --- Preview -------------------------------------------------
