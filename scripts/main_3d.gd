@@ -186,8 +186,10 @@ func _stop_hand_tracker() -> void:
 func _update_tracker_status() -> void:
 	var now := Time.get_ticks_msec()
 	# First real hand packet arrived -> the player auto-switched to hand
-	# mode, so the tracker is genuinely online.
-	if _tracker_state == "starting" and _player.is_hand_mode():
+	# mode, so the tracker is genuinely online. Requiring received data
+	# keeps a manual H press (before any packet) from being mislabeled
+	# "online".
+	if _tracker_state == "starting" and _player.is_hand_mode() and _player._hand_source.has_received_data():
 		_set_tracker_state("online")
 		_online_hide_at = now + 4000
 	# Hide the brief "online" notice after a few seconds.

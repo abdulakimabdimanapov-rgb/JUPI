@@ -1,5 +1,5 @@
 extends Node
-## JUPI step 9 runtime test: open hands walk the player forward.
+## JUPI runtime test: open hands walk the player forward.
 ##
 ## Instantiates the real main scene and drives the hand aim source with
 ## synthetic UDP packets, verifying that in hand mode:
@@ -60,7 +60,7 @@ func _ready() -> void:
 	_main._target.position = _main._anchor
 	_main._sway_t = 0.0
 
-	print("=== JUPI step 9 runtime test (open hands walk forward) ===")
+	print("=== JUPI runtime test (open hands walk forward) ===")
 
 	await _check_mouse_mode_ignores_hands()
 	await _press_h()

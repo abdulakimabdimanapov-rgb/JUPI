@@ -1,5 +1,5 @@
 extends Node
-## JUPI step 8 runtime test: two-hand protocol - LEFT pinch = camera look.
+## JUPI runtime test: two-hand protocol - LEFT pinch = camera look.
 ##
 ## Instantiates the real main scene, lets the tracker's first UDP packet
 ## auto-engage hand mode, then drives the hand aim source with synthetic
@@ -55,7 +55,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	print("=== JUPI step 8 runtime test (two-hand: left pinch = camera look) ===")
+	print("=== JUPI runtime test (two-hand: left pinch = camera look) ===")
 
 	await _check_default_and_auto_hand()
 	await _check_no_jump_on_pinch_start()

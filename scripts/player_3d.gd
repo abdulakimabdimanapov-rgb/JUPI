@@ -28,7 +28,7 @@ const AimSourceMouseScript := preload("res://scripts/aim_source_mouse.gd")
 const AimSourceHandScript := preload("res://scripts/aim_source_hand.gd")
 
 const SPEED := 5.0
-## Constant walk speed while a hand is open in hand mode (Step 9).
+## Constant walk speed while a hand is open in hand mode.
 ## Slightly slower than keyboard sprint-feel so aiming stays controlled.
 const WALK_SPEED := 2.5
 const GRAVITY := 9.8
@@ -84,8 +84,10 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# H toggles between hand-tracking and mouse aiming.
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_H:
+	# H toggles between hand-tracking and mouse aiming. Match the
+	# physical key too so the toggle works on non-QWERTY layouts where
+	# keycode is layout-mapped.
+	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_H or event.physical_keycode == KEY_H):
 		_auto_hand = false  # a manual press takes over from auto-start
 		_toggle_hand_mode()
 		return

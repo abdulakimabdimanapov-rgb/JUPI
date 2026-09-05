@@ -1,8 +1,8 @@
 extends Node
-## JUPI step 8 runtime test: permanently centered crosshair + center raycast.
+## JUPI runtime test: permanently centered crosshair + center raycast.
 ##
 ## The previous design moved the crosshair to an aim pointer and cast the
-## shot ray through it. Step 8 removes that: the crosshair ALWAYS stays at
+## shot ray through it. The crosshair ALWAYS stays at
 ## 50% X / 50% Y and the ray is always cast through the exact center of
 ## the camera. A source only ever rotates the camera (mouse look / hand
 ## look); it can never move a pointer.
@@ -58,7 +58,7 @@ func _ready() -> void:
 	_main._sway_t = 0.0
 	_place_target_clean()
 
-	print("=== JUPI step 8 runtime test (center crosshair + center raycast) ===")
+	print("=== JUPI runtime test (center crosshair + center raycast) ===")
 
 	_check_crosshair_centered()
 	await _check_mouse_motion_keeps_crosshair_centered()

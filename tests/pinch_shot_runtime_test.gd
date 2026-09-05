@@ -1,5 +1,5 @@
 extends Node
-## JUPI step 8 runtime test: RIGHT pinch = exactly one shot.
+## JUPI runtime test: RIGHT pinch = exactly one shot.
 ##
 ## Instantiates the real main scene, toggles hand mode (KEY_H), then
 ## drives the hand aim source with synthetic UDP packets and verifies:
@@ -56,7 +56,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_main.set_physics_process(false)
 
-	print("=== JUPI step 8 runtime test (right pinch = one shot) ===")
+	print("=== JUPI runtime test (right pinch = one shot) ===")
 
 	await _check_hand_toggle()
 	await _check_crosshair_centered()

@@ -46,10 +46,15 @@ FRAME_HEIGHT = 480
 
 # --- Pinch gesture --------------------------------------------------------
 # Pinch = index fingertip (8) and thumb tip (4) closer than this
-# normalized distance. Calibrated live: deliberate pinches measure
-# 0.02-0.06, open hand 0.08+, so 0.07 fires on a firm pinch but ignores
-# fingers hovering around 0.08.
-PINCH_THRESHOLD = 0.07
+# normalized (Euclidean, x/y/z) distance. Calibrated live: deliberate
+# pinches measure 0.02-0.06, open hand 0.08+, so PINCH_ON_THRESHOLD fires
+# on a firm pinch and PINCH_OFF_THRESHOLD ignores fingers hovering around
+# 0.08. The two thresholds form a hysteresis band: once pinched, fingers
+# must open past 0.09 before the hand reports open again (and vice versa),
+# so slight jitter around the boundary cannot flip the state and fire
+# accidental double-shots or re-arm the camera look repeatedly.
+PINCH_ON_THRESHOLD = 0.06
+PINCH_OFF_THRESHOLD = 0.09
 
 # --- UDP output to the JUPI Godot receiver -------------------------------
 # The Godot hand source binds this same port on 127.0.0.1.
@@ -88,11 +93,34 @@ def _mirror_x(x: float) -> float:
 
 
 def _pinch_distance(landmarks) -> float:
-    """Normalized distance between thumb tip (4) and index fingertip (8)."""
+    """Normalized Euclidean distance between thumb tip (4) and index
+    fingertip (8), including depth (z): two fingertips can share the same
+    x/y but be far apart along z (e.g. a finger pointing at the camera),
+    which is not a pinch. For a real pinch the tips touch, so z adds ~0
+    and the calibrated thresholds stay valid."""
     return math.hypot(
         landmarks[INDEX_FINGERTIP].x - landmarks[THUMB_TIP].x,
         landmarks[INDEX_FINGERTIP].y - landmarks[THUMB_TIP].y,
+        landmarks[INDEX_FINGERTIP].z - landmarks[THUMB_TIP].z,
     )
+
+
+def next_pinch_state(pinched: bool, dist: float) -> bool:
+    """Applies the hysteresis band to one hand's pinch state.
+
+    A hand becomes pinched when the fingertip distance closes below
+    PINCH_ON_THRESHOLD and stays pinched until the fingers open past
+    PINCH_OFF_THRESHOLD. Distances inside the band (between the two
+    thresholds) keep the current state, so jitter around the boundary
+    cannot flip it: an accidental right-hand flip would fire an extra
+    shot and an accidental left-hand flip would re-arm camera look.
+
+    Both comparisons are strict (<), so the exact threshold values keep
+    the current state (0.06 stays open, 0.09 releases a pinch).
+    """
+    if pinched:
+        return dist < PINCH_OFF_THRESHOLD
+    return dist < PINCH_ON_THRESHOLD
 
 
 def _pinch_point(landmarks):
@@ -187,13 +215,15 @@ def main() -> None:
             left = hands.get("Left")
             if left is not None:
                 dist = _pinch_distance(left)
-                now_pinched = dist < PINCH_THRESHOLD
+                # Hysteresis band: no flicker around the boundary, see
+                # next_pinch_state().
+                now_pinched = next_pinch_state(pinched["Left"], dist)
                 if now_pinched and not pinched["Left"]:
                     send("left,pinch")
                     print("left,pinch -> UDP  (d=%.3f)" % dist)
                 elif not now_pinched and pinched["Left"]:
                     send("left,release")
-                    print("left,release (d=%.3f)" % dist)
+                    print("left,release -> UDP  (d=%.3f)" % dist)
                 pinched["Left"] = now_pinched
 
                 if now_pinched:
@@ -221,7 +251,10 @@ def main() -> None:
             right = hands.get("Right")
             if right is not None:
                 dist = _pinch_distance(right)
-                now_pinched = dist < PINCH_THRESHOLD
+                # Hysteresis (same as the left hand): no flicker means no
+                # accidental extra shots from fingers hovering at the
+                # boundary - each open -> pinch transition fires once.
+                now_pinched = next_pinch_state(pinched["Right"], dist)
                 if now_pinched and not pinched["Right"]:
                     # Edge: open -> pinched. Exactly one shot event, then
                     # nothing until the fingers separate again.
@@ -231,7 +264,7 @@ def main() -> None:
                     # Edge: pinched -> open. Godot resumes walking (an
                     # open hand moves the player forward).
                     send("right,release")
-                    print("right,release (d=%.3f)" % dist)
+                    print("right,release -> UDP  (d=%.3f)" % dist)
                 pinched["Right"] = now_pinched
             else:
                 # right,gone was already sent in the presence section.
